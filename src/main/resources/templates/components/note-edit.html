@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+    .kc-note-title {
+        border: none;
+    }
+    .kc-note-content {
+        border: none;
+        resize: none;
+    }
+    .kc-note-submit:focus {
+        outline: none;
+        box-shadow: none;
+    }
+</style>
+
+<script type="text/x-template" id="note-edit-template">
+    <div class="card">
+        <form>
+            <input type="text" class="form-control kc-note-title" placeholder="Title" v-model="thisNote.title"/>
+            <textarea class="form-control kc-note-content" placeholder="Take a note..." v-model="thisNote.content"/>
+            <div style="text-align:right">
+                <a class="btn btn-default kc-note-submit" href="#" v-on:click.prevent="$emit('save', thisNote)">Done</a>
+            </div>
+        </form>
+    </div>
+</script>
+
+<script>
+    Vue.component('note-edit', {
+        template: '#note-edit-template',
+        props: ['note'],
+        data: function() {
+            return {
+                thisNote : Object.assign({}, this.note)
+            }
+        },
+        watch: {
+            note: function() {
+                this.thisNote = Object.assign({}, this.note);
+            }
+        }
+    });
+
+</script>
+
+</html>

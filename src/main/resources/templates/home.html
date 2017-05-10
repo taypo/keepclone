@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>KeepClone</title>
+    <script src="/webjars/vue/vue.js"></script>
+    <script src="/webjars/masonry/masonry.pkgd.js"></script>
+    <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.css"/>
+    <style>
+        body {
+            background-color: #e8e8e8;
+        }
+        .card {
+            box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+            margin-top: 10px;
+            background-clip: padding-box;
+            margin: 2em;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <note-edit :note="newNote" v-on:save="addNote"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="grid js-masonry">
+                <note-view v-for="note in notes" :note="note" v-on:click="showEdit = true; noteToEdit = note"></note-view>
+            </div>
+        </div>
+    </div>
+    <div class="row" v-if="showEdit">
+        <modal><note-edit :note="noteToEdit" v-on:save="updateNote" slot="body"/></modal>
+    </div>
+</div>
+
+<div th:include="components/modal"></div>
+<div th:include="components/note-view"></div>
+<div th:include="components/note-edit"></div>
+<script th:inline="javascript">
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            notes: /*[[${notes}]]*/ [],
+            newNote: {title: "", content: ""},
+            noteToEdit: {},
+            showEdit: false
+        },
+        methods: {
+            addNote: function(note) {
+                if(! note.content.trim()) return;
+                this.notes.push(note);
+                this.newNote = {title: "", content: ""};
+                this.layout();
+            },
+            updateNote: function(note) {
+                var i = this.notes.findIndex(function(n, i) {
+                    return n.id == note.id;
+                });
+                this.notes.splice(i, 1, note);
+                this.showEdit= false;
+                this.layout();
+            },
+            layout: function() {
+                //reload masonry after dom updates
+                Vue.nextTick(function() {
+                    var grid = document.querySelector('.grid');
+                    var masonry = Masonry.data( grid );
+                    masonry.reloadItems();
+                    masonry.layout();
+                });
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
